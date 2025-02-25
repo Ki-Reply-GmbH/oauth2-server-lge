@@ -9,4 +9,5 @@
 - Publish the exercise in a git server and grant us access to review it.
 - Avoid a single commit with the whole solution, we want to see how the solution was developed incrementally.
 - Provide instructions to execute it
+
 If you have any question do not hesitate to contact us.
