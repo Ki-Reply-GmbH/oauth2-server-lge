@@ -7,7 +7,7 @@
 APP_PORT=8080
 USERNAME="dev"
 PASSWORD="dev"
-NAME="cariard-exercise"
+NAME="cariad-exercise"
 
 # Generate RSA keys for JWT signing if they don't exist
 generate_keys() {
