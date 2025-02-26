@@ -42,7 +42,19 @@ func NewKeyManager() (*KeyManager, error) {
 
 	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse private key: %w", err)
+		// If that fails, try PKCS#8 format
+		pkcs8Key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse private key: %w", err)
+		}
+
+		// Check if it's an RSA key
+		rsaKey, ok := pkcs8Key.(*rsa.PrivateKey)
+		if !ok {
+			return nil, fmt.Errorf("key is not an RSA private key")
+		}
+
+		key = rsaKey
 	}
 
 	km.privateKey = key
