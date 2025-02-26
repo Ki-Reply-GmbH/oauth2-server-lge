@@ -36,6 +36,8 @@ build() {
 
 # Run the application locally in a docker container
 up() {
+    down
+    build
     echo "Starting the application in a docker container"
     docker run -d -t -i -e AUTH_USERNAME=$USERNAME -e AUTH_PASSWORD=$PASSWORD -p 8080:8080 --name $NAME "$NAME:latest"
 }
