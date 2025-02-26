@@ -19,7 +19,7 @@ A simple OAuth2 server that issues JWT Access Tokens using the Client Credential
 
 ## Prerequisites
 
-- Go 1.19+
+- Go 1.22+
 - OpenSSL (for generating keys)
 - Docker (optional, for containerization)
 - Kubernetes (optional, for deployment)
