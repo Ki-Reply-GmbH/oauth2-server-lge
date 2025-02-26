@@ -75,6 +75,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", app.healthHandler)
 	mux.HandleFunc("/token", app.basicAuth(app.tokenHandler))
+	mux.HandleFunc("/introspect", app.basicAuth(app.introspectionHandler))
 
 	// Initialize server
 	server := &http.Server{
@@ -176,6 +177,38 @@ func (app *Application) tokenHandler(writer http.ResponseWriter, request *http.R
 		Scope:       scope,
 	}
 
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(writer).Encode(response); err != nil {
+		log.Printf("Failed to encode response: %v", err)
+	}
+}
+
+func (app *Application) introspectionHandler(writer http.ResponseWriter, request *http.Request) {
+	// Only accept POST method
+	if request.Method != http.MethodPost {
+		sendJSONError(writer, "invalid_request", "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse form data
+	err := request.ParseForm()
+	if err != nil {
+		sendJSONError(writer, "invalid_request", "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	// Get token from request
+	tokenString := request.Form.Get("token")
+	if tokenString == "" {
+		sendJSONError(writer, "invalid_request", "Token parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	// Introspect token
+	response := app.tokenService.GetIntrospectionResponse(tokenString)
+
+	// Send introspection response
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
