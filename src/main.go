@@ -47,9 +47,9 @@ func main() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	// Start server with TLS and local keys at the moment
 	log.Printf("starting OAuth2 server on %s", server.Addr)
-	if err := server.ListenAndServeTLS("../certs/localhost.pem", "../certs/localhost-key.pem"); err != nil {
+	// TODO Look into ListenAndServeTLS to make the endpoint secure
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
