@@ -76,6 +76,7 @@ func main() {
 	mux.HandleFunc("/health", app.healthHandler)
 	mux.HandleFunc("/token", app.basicAuth(app.tokenHandler))
 	mux.HandleFunc("/introspect", app.basicAuth(app.introspectionHandler))
+	mux.HandleFunc("/.well-known/jwks.json", app.jwksHandler)
 
 	// Initialize server
 	server := &http.Server{
@@ -213,6 +214,32 @@ func (app *Application) introspectionHandler(writer http.ResponseWriter, request
 	writer.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
 		log.Printf("Failed to encode response: %v", err)
+	}
+}
+
+func (app *Application) jwksHandler(writer http.ResponseWriter, request *http.Request) {
+	// Only accept GET method
+	if request.Method != http.MethodGet {
+		sendJSONError(writer, "invalid_request", "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get key set
+	keySet := app.keyManager.GetKeySet()
+
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+
+	buf, err := json.MarshalIndent(keySet, "", "  ")
+	if err != nil {
+		log.Printf("Failed to marshal key set: %v", err)
+		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = writer.Write(buf)
+	if err != nil {
+		log.Printf("Failed to write response: %v", err)
 	}
 }
 
