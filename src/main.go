@@ -14,6 +14,10 @@ type TokenResponse struct {
 	Token string `json:"Token"`
 }
 
+type HealthResponse struct {
+	Status string `json:"status"`
+}
+
 type Application struct {
 	auth struct {
 		username string
@@ -24,19 +28,21 @@ type Application struct {
 func main() {
 	app := new(Application)
 
+	// Get basic auth username + password from environment
 	app.auth.username = os.Getenv("AUTH_USERNAME")
 	app.auth.password = os.Getenv("AUTH_PASSWORD")
 
-	// Get basic auth username + password from environment
+	// Fail if username is empty
 	if app.auth.username == "" {
 		log.Fatal("basic auth username must be provided")
 	}
-
+	// Fail if password is empty
 	if app.auth.password == "" {
 		log.Fatal("basic auth password must be provided")
 	}
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/health", app.healthHandler)
 	mux.HandleFunc("/token", app.basicAuth(app.getToken))
 
 	server := &http.Server{
@@ -80,6 +86,16 @@ func (app *Application) basicAuth(next http.HandlerFunc) http.HandlerFunc {
 
 func (app *Application) getToken(writer http.ResponseWriter, request *http.Request) {
 	response := TokenResponse{Token: "xxx"}
+
+	writer.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(writer).Encode(response); err != nil {
+		http.Error(writer, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (app *Application) healthHandler(writer http.ResponseWriter, request *http.Request) {
+	response := HealthResponse{Status: "ok"}
 
 	writer.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
