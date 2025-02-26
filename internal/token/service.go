@@ -1,6 +1,7 @@
 package token
 
 import (
+	"cmp"
 	"fmt"
 	"os"
 	"strconv"
@@ -23,10 +24,7 @@ type TokenClaims struct {
 }
 
 func NewService(keyManager *keys.KeyManager) *Service {
-	issuer := os.Getenv("TOKEN_ISSUER")
-	if issuer == "" {
-		issuer = "https://cariad-oauth2-server.example.com"
-	}
+	issuer := cmp.Or(os.Getenv("TOKEN_ISSUER"), "https://cariad-oauth2-server.example.com")
 
 	ttlStr := os.Getenv("TOKEN_TTL_SECONDS")
 	ttl := 3600 * time.Second

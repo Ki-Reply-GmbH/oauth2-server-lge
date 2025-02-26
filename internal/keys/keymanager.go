@@ -1,6 +1,7 @@
 package keys
 
 import (
+	"cmp"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -25,10 +26,7 @@ func NewKeyManager() (*KeyManager, error) {
 	}
 
 	// Load private key
-	privateKeyPath := os.Getenv("PRIVATE_KEY_PATH")
-	if privateKeyPath == "" {
-		privateKeyPath = "keys/private.pem"
-	}
+	privateKeyPath := cmp.Or(os.Getenv("PRIVATE_KEY_PATH"), "keys/private.pem")
 
 	privateKeyData, err := os.ReadFile(privateKeyPath)
 	if err != nil {
