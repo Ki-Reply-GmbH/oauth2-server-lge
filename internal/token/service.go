@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"kireply.de/simple-oauth2-server/src/internal/keys"
+	"kireply.de/simple-oauth2-server/internal/keys"
 )
 
 type Service struct {

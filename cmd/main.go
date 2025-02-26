@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"kireply.de/simple-oauth2-server/src/internal/keys"
-	"kireply.de/simple-oauth2-server/src/internal/token"
+	"kireply.de/simple-oauth2-server/internal/keys"
+	"kireply.de/simple-oauth2-server/internal/token"
 )
 
 type TokenRequest struct {
