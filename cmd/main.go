@@ -53,6 +53,7 @@ func main() {
 	app.auth.username = os.Getenv("AUTH_USERNAME")
 	app.auth.password = os.Getenv("AUTH_PASSWORD")
 
+	// Get Port from environment
 	port := cmp.Or(os.Getenv("APP_PORT"), "8080")
 
 	// Fail if username is empty
@@ -90,7 +91,7 @@ func main() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	log.Printf("starting OAuth2 server on %s:%s", server.Addr, port)
+	log.Printf("starting OAuth2 server on %s", server.Addr)
 	// TODO Look into ListenAndServeTLS to make the endpoint secure
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
