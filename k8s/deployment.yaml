@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-server
+  labels:
+    app: oauth2-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oauth2-server
+  template:
+    metadata:
+      labels:
+        app: oauth2-server
+    spec:
+      volumes:
+        - name: keys-volume
+          secret:
+            secretName: oauth2-keys
+      containers:
+      - name: oauth2-server
+        image: renco3/cariad-exercise:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: oauth2-credentials
+              key: username
+        - name: AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: oauth2-credentials
+              key: password
+        - name: TOKEN_ISSUER
+          value: "https://auth.cariad.example.com"
+        - name: TOKEN_TTL_SECONDS
+          value: "3600"
+        - name: PRIVATE_KEY_PATH
+          value: "/keys/private.pem"
+        volumeMounts:
+        - name: keys-volume
+          mountPath: "/keys"
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
