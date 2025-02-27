@@ -4,7 +4,7 @@
 # Usage: dev [command]
 
 # Configuration
-APP_PORT=8080
+APP_PORT=5555
 USERNAME="dev"
 PASSWORD="dev"
 NAME="cariad-exercise"
@@ -77,6 +77,7 @@ run() {
   echo "Starting OAuth2 server on port $APP_PORT..."
   export AUTH_USERNAME=$USERNAME
   export AUTH_PASSWORD=$PASSWORD
+  export APP_PORT=$APP_PORT
   go run cmd/main.go
 }
 
@@ -107,14 +108,6 @@ down() {
     docker rm $CONTAINER_ID
 }
 
-add_hosts() {
-  echo "127.0.0.1 auth.cariad.example.com" | sudo tee -a /etc/hosts > /dev/null
-}
-
-delete_hosts() {
-  sudo sed -i '/127.0.0.1 auth.cariad.example.com/d' /etc/hosts
-}
-
 # Show help
 show_help() {
   echo "Usage: dev [run|up|down|build|help]"
@@ -142,12 +135,6 @@ case "$1" in
         ;;
     generate_tls)
         generate_tls
-        ;;
-    add_hosts)
-        add_hosts
-        ;;
-    delete_hosts)
-        delete_hosts
         ;;
     *)
         show_help
