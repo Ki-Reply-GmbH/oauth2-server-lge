@@ -21,7 +21,7 @@ spec:
       containers:
       - name: oauth2-server
         image: renco3/cariad-exercise:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:

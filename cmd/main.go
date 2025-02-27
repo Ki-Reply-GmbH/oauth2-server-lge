@@ -8,9 +8,9 @@
 // @contact.email        support@cariad.example.com
 // @license.name         MIT
 // @license.url          https://opensource.org/licenses/MIT
-// @host                 localhost:5555
+// @host                 auth.cariad.example.com"
 // @BasePath             /
-// @schemes              http
+// @schemes              https
 // @securityDefinitions.basic  BasicAuth
 package main
 
@@ -315,6 +315,7 @@ func (app *Application) jwksHandler(writer http.ResponseWriter, request *http.Re
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
 
+	// Pretty print for better readability
 	buf, err := json.MarshalIndent(keySet, "", "  ")
 	if err != nil {
 		log.Printf("Failed to marshal key set: %v", err)

@@ -4,6 +4,7 @@ FROM golang:1.24.0-alpine3.21 AS build
 WORKDIR /app
 COPY cmd cmd
 COPY internal internal
+COPY docs docs
 COPY go.mod .
 COPY go.sum .
 RUN mkdir keys
