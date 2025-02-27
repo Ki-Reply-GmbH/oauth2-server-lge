@@ -10,6 +10,24 @@ PASSWORD="dev"
 NAME="cariad-exercise"
 DOCKER_USERNAME="renco3"
 
+setup() {
+  echo "Running first time setup..."
+  generate_keys
+  build
+}
+
+rerollKeys() {
+  echo "Rerolling keys..."
+  echo "Deleting keys..."
+  if [ -d "keys/" ]; then
+    rm -rf keys/
+  fi
+  if [ -d "tls/" ]; then
+    rm -rf tls/
+  fi
+  generate_keys
+}
+
 # Generate RSA keys for JWT signing if they don't exist
 generate_keys() {
   mkdir -p keys
@@ -135,6 +153,12 @@ case "$1" in
         ;;
     generate_tls)
         generate_tls
+        ;;
+    setup)
+        setup
+        ;;
+    rerollKeys)
+        rerollKeys
         ;;
     *)
         show_help
