@@ -1,3 +1,4 @@
 keys/
+tls/
 !internal/keys
 k8s/secrets.yaml

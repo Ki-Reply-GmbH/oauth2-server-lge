@@ -8,6 +8,7 @@ APP_PORT=8080
 USERNAME="dev"
 PASSWORD="dev"
 NAME="cariad-exercise"
+DOCKER_USERNAME="renco3"
 
 # Generate RSA keys for JWT signing if they don't exist
 generate_keys() {
@@ -16,6 +17,11 @@ generate_keys() {
     echo "Generating RSA keys for JWT signing..."
     openssl genrsa -out keys/private.pem 2048
     openssl rsa -in keys/private.pem -pubout -out keys/public.pem
+  fi
+  mkdir -p tls
+  if [ ! -f tls/tls.key ]; then
+    echo "Generate self-signed certificate..."
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls/tls.key -out tls/tls.crt -subj "/CN=auth.cariad.example.com"
   fi
   create_secrets
 }
@@ -55,12 +61,18 @@ run() {
   echo "Starting OAuth2 server on port $APP_PORT..."
   export AUTH_USERNAME=$USERNAME
   export AUTH_PASSWORD=$PASSWORD
-  go run src/main.go
+  go run cmd/main.go
 }
 
 build() {
     echo "Building..."
-    docker build . --tag $NAME
+    docker build . --tag "$DOCKER_USERNAME/$NAME"
+}
+
+push() {
+    echo "Pushing to DockerHub using Docker Username: $DOCKER_USERNAME..."
+    build
+    docker push "$DOCKER_USERNAME/$NAME"
 }
 
 # Run the application locally in a docker container
@@ -77,6 +89,14 @@ down() {
     CONTAINER_ID=$(docker ps -a -f "name=$name" --format "{{.ID}}")
     docker stop $CONTAINER_ID
     docker rm $CONTAINER_ID
+}
+
+add_hosts() {
+  echo "127.0.0.1 auth.cariad.example.com" | sudo tee -a /etc/hosts > /dev/null
+}
+
+delete_hosts() {
+  sudo sed -i '/127.0.0.1 auth.cariad.example.com/d' /etc/hosts
 }
 
 # Show help
@@ -98,8 +118,17 @@ case "$1" in
     build)
         build
         ;;
+    push)
+        push
+        ;;
     generate_keys)
         generate_keys
+        ;;
+    add_hosts)
+        add_hosts
+        ;;
+    delete_hosts)
+        delete_hosts
         ;;
     *)
         show_help
