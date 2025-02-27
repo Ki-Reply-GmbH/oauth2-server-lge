@@ -18,19 +18,24 @@ generate_keys() {
     openssl genrsa -out keys/private.pem 2048
     openssl rsa -in keys/private.pem -pubout -out keys/public.pem
   fi
+  generate_tls
+  create_secrets
+}
+
+generate_tls() {
   mkdir -p tls
   if [ ! -f tls/tls.key ]; then
-    echo "Generate self-signed certificate..."
+    echo "Generating self-signed certificate..."
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls/tls.key -out tls/tls.crt -subj "/CN=auth.cariad.example.com"
   fi
-  create_secrets
 }
 
 create_secrets() {
     echo "Creating k8s/secrets.yaml..."
     PRIVATE_KEY=$(cat keys/private.pem | base64 -w 0)
     PUBLIC_KEY=$(cat keys/public.pem | base64 -w 0)
-    # Create the secrets.yaml file
+    TLS_KEY=$(cat tls/tls.key | base64 -w 0)
+    TLS_CRT=$(cat tls/tls.crt | base64 -w 0)
     cat > k8s/secrets.yaml << EOF
 apiVersion: v1
 kind: Secret
@@ -50,9 +55,20 @@ type: Opaque
 data:
   private.pem: ${PRIVATE_KEY}
   public.pem: ${PUBLIC_KEY}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oauth2-tls-cert
+type: kubernetes.io/tls
+data:
+  tls.key: ${TLS_KEY}
+  tls.crt: ${TLS_CRT}
 EOF
   echo "Kubernetes secrets file generated at k8s/secrets.yaml"
   echo "RSA keys have been generated and encoded"
+  echo "TLS keys have been generated and encoded"
 }
 
 # Run the application locally
@@ -123,6 +139,9 @@ case "$1" in
         ;;
     generate_keys)
         generate_keys
+        ;;
+    generate_tls)
+        generate_tls
         ;;
     add_hosts)
         add_hosts
