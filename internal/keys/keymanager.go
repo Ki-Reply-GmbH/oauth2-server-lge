@@ -30,7 +30,7 @@ type KeyManager struct {
 //  1. Creates a KeyManager with a unique key ID based on current Unix timestamp
 //  2. Loads the RSA private key from a file specified by PRIVATE_KEY_PATH environment variable
 //     (defaults to "keys/private.pem" if not specified)
-//  3. Parses the PEM-encoded private key in PKCS#1 format
+//  3. Parses the PEM-encoded private key in PKCS#8 format
 //  4. Generates a JSON Web Key (JWK) Set containing the public key information
 //
 // The KeyManager is used for:
