@@ -1,0 +1,160 @@
+basePath: /
+definitions:
+  main.ErrorResponse:
+    description: Error response structure
+    properties:
+      error:
+        description: OAuth2 error code
+        type: string
+      error_description:
+        description: Human-readable error description
+        type: string
+    type: object
+  main.HealthResponse:
+    description: Health check response
+    properties:
+      status:
+        description: Status of the server (ok when healthy)
+        type: string
+    type: object
+  main.TokenResponse:
+    description: Successful token response
+    properties:
+      access_token:
+        description: JWT access token
+        type: string
+      expires_in:
+        description: Time in seconds until the token expires
+        type: integer
+      scope:
+        description: Space-separated scopes granted to the token
+        type: string
+      token_type:
+        description: Type of the token (always Bearer)
+        type: string
+    type: object
+host: localhost:5555
+info:
+  contact:
+    email: support@cariad.example.com
+    name: API Support
+    url: https://cariad.example.com/support
+  description: Health check response
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Simple OAuth2 Server API
+  version: 1.0.0
+paths:
+  /:
+    get:
+      description: Returns the health status of the server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.HealthResponse'
+      summary: Health check
+      tags:
+      - system
+  /.well-known/jwks.json:
+    get:
+      description: Returns the JSON Web Key Set for token verification
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      summary: Get JWKS
+      tags:
+      - oauth2
+  /introspect:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Validates a token and returns its metadata if active
+      parameters:
+      - description: The token to introspect
+        in: formData
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BasicAuth: []
+      summary: Introspect a token
+      tags:
+      - oauth2
+  /token:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Creates a new JWT token using client credentials flow
+      parameters:
+      - description: Grant type (must be client_credentials)
+        in: formData
+        name: grant_type
+        required: true
+        type: string
+      - description: Space-separated list of requested scopes
+        in: formData
+        name: scope
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - BasicAuth: []
+      summary: Issue a new OAuth2 token
+      tags:
+      - oauth2
+schemes:
+- http
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
