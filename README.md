@@ -93,14 +93,27 @@ A simple OAuth2 server that issues JWT Access Tokens using the Client Credential
    ```
 
 ## Kubernetes Deployment
-//TODO
+   ```bash
+kubectl apply -f k8s/secrets.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/ingress.yaml
+   ```
+
+
+2. Verify the deployment
+   ```bash
+kubectl get pods
+kubectl get svc
+kubectl get ingress
+   ```
 
 ## Testing the API
 
 ### 1. Request a Token
 
 ```bash
-curl -X POST http://localhost:8080/token \
+curl -X POST https://auth.cariad.example.com/token \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -H "Authorization: Basic $(echo -n dev:dev | base64)" \
   -d "grant_type=client_credentials&scope=read write"
@@ -119,7 +132,7 @@ Expected response:
 ### 2. Get JWKS
 
 ```bash
-curl http://localhost:8080/.well-known/jwks.json
+curl https://auth.cariad.example.com/.well-known/jwks.json
 ```
 
 Expected response:
@@ -166,10 +179,13 @@ Expected response for a valid token:
 ```
 ├── cmd
 │   ├── main.go       # Main application
+├── docs              # Swagger Docs
 ├── internal
 │   ├── keys          # Key management service
 │   └── token         # Token service
+├── k8s               # Kubernetes deployment files
 ├── keys              # RSA key files
+├── tls               # TLS key files
 ├── Dockerfile
 ├── dev.sh            # Development script
 ├── go.mod
