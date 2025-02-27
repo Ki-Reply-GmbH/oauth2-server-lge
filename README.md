@@ -93,20 +93,22 @@ A simple OAuth2 server that issues JWT Access Tokens using the Client Credential
    ```
 
 ## Kubernetes Deployment
+
+1. Deploy Resources
    ```bash
-kubectl apply -f k8s/secrets.yaml
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
-kubectl apply -f k8s/ingress.yaml
+    kubectl apply -f k8s/secrets.yaml
+    kubectl apply -f k8s/deployment.yaml
+    kubectl apply -f k8s/service.yaml
+    kubectl apply -f k8s/ingress.yaml
    ```
 
 
 2. Verify the deployment
-   ```bash
-kubectl get pods
-kubectl get svc
-kubectl get ingress
-   ```
+    ```bash
+      kubectl get pods
+      kubectl get svc
+      kubectl get ingress
+    ```
 
 ## Testing the API
 
