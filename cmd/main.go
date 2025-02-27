@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/json"
@@ -52,6 +53,8 @@ func main() {
 	app.auth.username = os.Getenv("AUTH_USERNAME")
 	app.auth.password = os.Getenv("AUTH_PASSWORD")
 
+	port := cmp.Or(os.Getenv("APP_PORT"), "8080")
+
 	// Fail if username is empty
 	if app.auth.username == "" {
 		log.Fatal("basic auth username must be provided")
@@ -80,14 +83,14 @@ func main() {
 
 	// Initialize server
 	server := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":" + port,
 		Handler:      mux,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	log.Printf("starting OAuth2 server on %s", server.Addr)
+	log.Printf("starting OAuth2 server on %s:%s", server.Addr, port)
 	// TODO Look into ListenAndServeTLS to make the endpoint secure
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

@@ -38,8 +38,9 @@ build() {
 up() {
     down
     build
+    generate_keys
     echo "Starting the application in a docker container"
-    docker run -d -t -i -e AUTH_USERNAME=$USERNAME -e AUTH_PASSWORD=$PASSWORD -p 8080:8080 --name $NAME "$NAME:latest"
+    docker run -d -t -i -e AUTH_USERNAME=$USERNAME -e AUTH_PASSWORD=$PASSWORD -e APP_PORT=$APP_PORT -p $APP_PORT:8080 --name $NAME "$NAME:latest"
 }
 
 # Stops the application
