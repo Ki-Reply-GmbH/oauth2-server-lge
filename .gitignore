@@ -1,2 +1,3 @@
 keys/
 !internal/keys
+k8s/secrets.yaml

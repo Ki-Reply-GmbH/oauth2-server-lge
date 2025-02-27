@@ -16,8 +16,37 @@ generate_keys() {
     echo "Generating RSA keys for JWT signing..."
     openssl genrsa -out keys/private.pem 2048
     openssl rsa -in keys/private.pem -pubout -out keys/public.pem
-    echo "Keys generated successfully"
   fi
+  create_secrets
+}
+
+create_secrets() {
+    echo "Creating k8s/secrets.yaml..."
+    PRIVATE_KEY=$(cat keys/private.pem | base64 -w 0)
+    PUBLIC_KEY=$(cat keys/public.pem | base64 -w 0)
+    # Create the secrets.yaml file
+    cat > k8s/secrets.yaml << EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oauth2-credentials
+type: Opaque
+stringData:
+  username: ${USERNAME}
+  password: ${PASSWORD}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oauth2-keys
+type: Opaque
+data:
+  private.pem: ${PRIVATE_KEY}
+  public.pem: ${PUBLIC_KEY}
+EOF
+  echo "Kubernetes secrets file generated at k8s/secrets.yaml"
+  echo "RSA keys have been generated and encoded"
 }
 
 # Run the application locally
@@ -68,6 +97,9 @@ case "$1" in
         ;;
     build)
         build
+        ;;
+    generate_keys)
+        generate_keys
         ;;
     *)
         show_help
