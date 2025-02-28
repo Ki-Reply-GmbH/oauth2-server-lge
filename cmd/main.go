@@ -153,6 +153,7 @@ func (app *Application) basicAuth(next http.HandlerFunc) http.HandlerFunc {
 			expectedUsernameHash := sha256.Sum256([]byte(app.auth.username))
 			expectedPasswordHash := sha256.Sum256([]byte(app.auth.password))
 
+			// Use ConstantTimeCompare to prevent timing attacks
 			usernameMatch := (subtle.ConstantTimeCompare(usernameHash[:], expectedUsernameHash[:]) == 1)
 			passwordMatch := (subtle.ConstantTimeCompare(passwordHash[:], expectedPasswordHash[:]) == 1)
 

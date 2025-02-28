@@ -61,16 +61,23 @@ func NewKeyManager() (*KeyManager, error) {
 		return nil, fmt.Errorf("failed to parse PEM block containing the private key")
 	}
 
-	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse private key")
-	}
+	var privateKey *rsa.PrivateKey
 
-	// Type assertion for RSA private key
-	var ok bool
-	privateKey, ok := key.(*rsa.PrivateKey)
-	if !ok {
-		return nil, fmt.Errorf("key is not an RSA private key")
+	// Try parsing as PKCS8 first
+	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err == nil {
+		// Check if it's an RSA key
+		var ok bool
+		privateKey, ok = key.(*rsa.PrivateKey)
+		if !ok {
+			return nil, fmt.Errorf("key is not an RSA private key")
+		}
+	} else {
+		// Try parsing as PKCS1
+		privateKey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse private key: %w", err)
+		}
 	}
 
 	km.privateKey = privateKey
