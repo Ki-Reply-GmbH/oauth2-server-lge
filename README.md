@@ -26,7 +26,7 @@ A simple OAuth2 server that issues JWT Access Tokens using the Client Credential
 - `/token` - OAuth2 token endpoint (POST)
 - `/.well-known/jwks.json` - JSON Web Key Set endpoint (GET)
 - `/introspect` - Token introspection endpoint (POST)
-- `/health` - Health check endpoint (GET)
+- `/` - Health check endpoint (GET)
 
 ## Prerequisites
 
